@@ -14,6 +14,8 @@ class ViewController: UIViewController {
     
     var countries = [String]()
     var score = 0
+    var correctAnswer = 0
+    var totalQuestions = 1
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -23,13 +25,16 @@ class ViewController: UIViewController {
                       "spain", "uk", "us"]
         
         setButtonStyle()
-        askQuestion()
+        askQuestion(action: nil)
     }
     
-    func askQuestion(){
+    func askQuestion(action: UIAlertAction!){
+        countries.shuffle()
+        correctAnswer = Int.random(in: 0...2)
         button1.setImage(UIImage(named: countries[0]), for: .normal)
         button2.setImage(UIImage(named: countries[1]), for: .normal)
         button3.setImage(UIImage(named: countries[2]), for: .normal)
+        title = "\(countries[correctAnswer].uppercased()) - Score \(String(score)) - Question #\(totalQuestions)"
     }
     
     func setButtonStyle() {
@@ -45,7 +50,67 @@ class ViewController: UIViewController {
         button2.layer.borderColor = UIColor.lightGray.cgColor
         button3.layer.borderColor = UIColor.lightGray.cgColor
     }
-
+    
+    
+    @IBAction func buttonTap(_ sender: UIButton) {
+        var titleAlert: String
+    
+        if sender.tag == correctAnswer {
+            titleAlert = "Correct"
+            score += 1
+        } else {
+            titleAlert = "Incorrect that is the flag of \(countries[sender.tag].uppercased())"
+            score -= 1
+        }
+        self.title = "\(countries[correctAnswer].uppercased()) - Score \(String(score)) - Question #\(totalQuestions)"
+        
+        if totalQuestions == 5 {
+            finalAlert()
+        } else {
+            currentScoreAlert(titleAlert)
+        }
+    }
+    
+    func currentScoreAlert(_ titleAlert: String) {
+        let ac = UIAlertController(
+            title: titleAlert,
+            message: "Your Score is \(score)",
+            preferredStyle: .alert
+        )
+        
+        ac.addAction(UIAlertAction(
+            title: "Continue",
+            style: .default,
+            handler: askQuestion))
+        
+        present(ac, animated: true)
+        
+        totalQuestions += 1
+    }
+    
+    func finalAlert() {
+        let ac = UIAlertController(
+            title: "Finished game",
+            message: "Your Total Score is \(score)",
+            preferredStyle: .alert
+        )
+        
+        ac.addAction(UIAlertAction(
+            title: "Reset",
+            style: .default,
+            handler: resetGame))
+        
+        present(ac, animated: true)
+    }
+    
+    
+    func resetGame(action: UIAlertAction) {
+        score = 0
+        correctAnswer = 0
+        totalQuestions = 1
+        askQuestion(action: nil)
+    }
+    
 
 }
 
